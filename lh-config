@@ -33,7 +33,7 @@ NORMALUSER=wandsas
 
 # Kernel config. Leave commented to use the one provided with the bootstrap,
 # which is suitable for qemu.
-KERNEL_CONFIG=./sub/kernel/config-bananapi-r2-5.1
+KERNEL_CONFIG=sub/kernel/config-bananapi-r2-5.1
 
 # Uncomment, and define the triplet of the target system,
 # and the absolute path to the base of the toolchains.

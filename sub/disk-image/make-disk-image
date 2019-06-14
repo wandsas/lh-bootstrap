@@ -42,7 +42,7 @@ fi
 s6-rmrf "$output/disk-image.raw"
 setuidgid ${NORMALUSER} dd if=/dev/zero of=$output/disk-image.raw bs=1 count=0 seek=${totalsize}M
 
-setuidgid ${NORMALUSER} dd if=./sub/disk-image/bananapi-bpi-r2-first10M.img of$output/disk-image.raw bs=1M count=10
+setuidgid ${NORMALUSER} dd if=sub/disk-image/bananapi-bpi-r2-first10M.img of$output/disk-image.raw bs=1M count=10
 
 fdisk $output/disk-image.raw <<EOF
 n
