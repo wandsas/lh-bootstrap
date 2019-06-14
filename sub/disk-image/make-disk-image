@@ -1,13 +1,14 @@
 #!/bin/sh -e
 
 output="$1"
-rootfs_size="$2"
-swap_size="$3"
-rwfs_size="$4"
-userfs_size="$5"
-extra_size="$6"
+bootfs_size="$2"
+rootfs_size="$3"
+swap_size="$4"
+rwfs_size="$5"
+userfs_size="$6"
+extra_size="$7"
 
-totalsize=$(s6-expr ${rootfs_size} + ${swap_size} + ${rwfs_size} + ${userfs_size} + ${extra_size} + 4)
+totalsize=$(s6-expr ${bootfs_size} + ${rootfs_size} + ${swap_size} + ${rwfs_size} + ${userfs_size} + ${extra_size} + 4)
 
 # prepare extlinux.conf
 
@@ -20,6 +21,8 @@ if s6-test ${KERNEL_GENERIC_ARCH} = x86 ; then
     bootpartition=/dev/vda1
   elif s6-test ${KERNEL_ARCH} = x86_64 ; then
     bootpartition=/dev/sda1
+  elif s6-test ${KERNEL_ARCH} = arm ; then
+    bootpartition=/dev/mmcblk0p1
   else
     bootpartition=/dev/hda1
   fi
@@ -39,11 +42,18 @@ fi
 s6-rmrf "$output/disk-image.raw"
 setuidgid ${NORMALUSER} dd if=/dev/zero of=$output/disk-image.raw bs=1 count=0 seek=${totalsize}M
 
+setuidgid ${NORMALUSER} dd if=./sub/disk-image/bananapi-bpi-r2-first10M.img of$output/disk-image.raw bs=1M count=10
+
 fdisk $output/disk-image.raw <<EOF
 n
-
-
-
+p
+1
+204800
++${bootfs_size}
+n
+p
+2
+237568
 +${rootfs_size}M
 n
 
@@ -78,10 +88,11 @@ losetup -P "$loop" "$output/disk-image.raw"
 
 {
   mkfs.ext4 -O ^huge_file ${loop}p1
-  mkswap ${loop}p2
-  mkfs.ext4 -O ^huge_file ${loop}p3
-  mkfs.ext4 -O ^huge_file ${loop}p5
+  mkfs.ext4 -O ^huge_file ${loop}p2
+  mkswap ${loop}p3
+  mkfs.ext4 -O ^huge_file ${loop}p4
   mkfs.ext4 -O ^huge_file ${loop}p6
+  mkfs.ext4 -O ^huge_file ${loop}p7
 
   s6-mkdir -p "$output/tmp/rootfs" "$output/tmp/rwfs" "$output/tmp/userfs" "$output/tmp/stagingfs"
   mount -t ext4 ${loop}p1 "$output/tmp/rootfs"
@@ -91,13 +102,13 @@ losetup -P "$loop" "$output/disk-image.raw"
     extlinux -i "$output/tmp/rootfs/boot"
   fi
   umount -l "$output/tmp/rootfs"
-  mount -t ext4 ${loop}p3 "$output/tmp/rwfs"
+  mount -t ext4 ${loop}p4 "$output/tmp/rwfs"
   s6-hiercopy "$output/rwfs" "$output/tmp/rwfs"
   umount -l "$output/tmp/rwfs"
-  mount -t ext4 ${loop}p5 "$output/tmp/userfs"
+  mount -t ext4 ${loop}p6 "$output/tmp/userfs"
   s6-hiercopy "$output/userfs" "$output/tmp/userfs"
   umount -l "$output/tmp/userfs"
-  mount -t ext4 ${loop}p6 "$output/tmp/stagingfs"
+  mount -t ext4 ${loop}p7 "$output/tmp/stagingfs"
   s6-hiercopy "$output/stagingfs" "$output/tmp/stagingfs"
   umount -l "$output/tmp/stagingfs"
 } || { losetup -d "$loop" ; exit 1 ; }

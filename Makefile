@@ -7,7 +7,7 @@
 # used by make to handle dependencies. Each of these files is
 # being touched at the end of each recipe to update its date,
 # since make relies on dates to handle updates of targets.
-# 
+#
 # * why these "exec" at the beginning at each line?
 # => make spawns a shell for every line in every recipe.
 # The "exec" keyword at the beginning of the recipe lines
@@ -59,7 +59,7 @@ distclean:
 # clean everything (same as above), minus the sources that were downloaded over the internet
 clean:
 	ls -1 $(OUTPUT) | grep -vF sources | while read a ; do rm -rf $(OUTPUT)/"$$a" & : ; done ; true
-	
+
 # other available targets to clean subsystems:
 # clean-busybox
 # clean-dropbear
@@ -103,7 +103,7 @@ $(OUTPUT)/tmp/.lh_diskimage_done: $(OUTPUT)/build-build/.lh_$(SYSLINUX_NAME)_ins
 endif
 
 $(OUTPUT)/tmp/.lh_diskimage_done:
-	exec sub/disk-image/make-disk-image $(OUTPUT) $(ROOTFS_SIZE) $(SWAP_SIZE) $(RWFS_SIZE) $(USERFS_SIZE) $(EXTRA_SIZE)
+	exec sub/disk-image/make-disk-image $(OUTPUT) $(BOOTFS_SIZE) $(ROOTFS_SIZE) $(SWAP_SIZE) $(RWFS_SIZE) $(USERFS_SIZE) $(EXTRA_SIZE)
 	exec setuidgid $(NORMALUSER) touch $@
 
 qemu-image: $(OUTPUT)/tmp/.lh_diskimage_done
