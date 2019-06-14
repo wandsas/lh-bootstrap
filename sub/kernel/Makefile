@@ -1,5 +1,5 @@
 
-KERNEL_VERSION ?= 5.0.11
+KERNEL_VERSION ?= 5.1.9
 KERNEL_MAJOR := $(firstword $(subst ., ,$(KERNEL_VERSION)))
 KERNEL_ENV := DEPMOD=$(OUTPUT)/build-build/opt/kmod/bin/depmod INSTALL_MOD_PATH=$(OUTPUT)/rootfs CROSS_COMPILE=$(BUILD_HOST_PREFIX)- ARCH=$(KERNEL_GENERIC_ARCH) INSTALL_MOD_STRIP="-R .note -R .comment -R .note.GNU-stack --strip-debug"
 
@@ -17,8 +17,8 @@ $(OUTPUT)/build-build/.lh_kernel_unpacked: $(OUTPUT)/sources/linux-$(KERNEL_VERS
 $(OUTPUT)/build-build/.lh_kernel_headers_installed: $(OUTPUT)/build-build/.lh_kernel_unpacked
 	cd $(OUTPUT)/build-build/opt/linux-$(KERNEL_VERSION)/src && setuidgid $(NORMALUSER) $(MAKE) headers_install INSTALL_HDR_PATH=$(OUTPUT)/build-build/opt/linux-$(KERNEL_VERSION)
 	exec setuidgid $(NORMALUSER) touch $@
-	
-	
+
+
 $(OUTPUT)/build-host/kernel/.lh_unpacked: $(OUTPUT)/sources/linux-$(KERNEL_VERSION).tar.xz | $(OUTPUT)/build-build/.lh_skarnet_installed
 	exec setuidgid $(NORMALUSER) s6-mkdir -p $(OUTPUT)/build-host/kernel
 	exec setuidgid $(NORMALUSER) cd $(OUTPUT)/build-host/kernel tar Jxpvf $(OUTPUT)/sources/linux-$(KERNEL_VERSION).tar.xz
