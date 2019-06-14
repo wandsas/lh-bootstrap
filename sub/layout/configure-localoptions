@@ -6,6 +6,7 @@ localip="$3"
 routerip="$4"
 
 case "$countrycode" in
+  de)  timezone=Europe/Berlin ;;
   fr)  timezone=Europe/Paris ;;
   uk)  timezone=Europe/London ;;
   rs)  timezone=Europe/Belgrade ;;

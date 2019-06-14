@@ -1,0 +1,20 @@
+kernel=uImage
+kernel414=uImage_4.14.80
+kernel418=uImage_4.18.18
+kernel419=uImage_4.19.1
+
+root=/dev/mmcblk0p2 rootfstype=ext4 rootwait
+console=earlyprintk console=tty1 fbcon=map:0 console=ttyS0,115200
+
+lskernel=ls ${device} ${partition} ${bpi}/${board}/${service};
+askkernel=askenv kernelinput "enter uImage-name:";
+
+boot0=run lskernel;run askkernel;if printenv kernelinput ;then setenv kernel ${kernelinput}; run newboot; fi
+bootmenu_0=1. Enter kernel-name to boot from SD/EMMC.=run boot0
+
+boot1=setenv kernel ${kernel414}; run newboot;
+boot2=setenv kernel ${kernel419}; run newboot;
+boot3=setenv kernel ${kernel418}; run newboot;
+bootmenu_1=2. Boot from SD/EMMC 4.14.=run boot1
+bootmenu_2=3. Boot from SD/EMMC 4.19.=run boot2
+bootmenu_3=4. Boot from SD/EMMC 4.18.=run boot3
